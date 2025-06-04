@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw } from 'lucide-react-native';
-import { Audio } from 'expo-av';
+import { Audio } from 'expo-audio';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
