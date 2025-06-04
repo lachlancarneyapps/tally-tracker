@@ -214,7 +214,7 @@ export default function DiceScreen() {
 
     setTimeout(() => {
       setIsRolling(false);
-    }, 400); // Reduced from 800 to 400 to match faster animations
+    }, 400);
   }, [diceCount, isRolling, sound]);
 
   useEffect(() => {
