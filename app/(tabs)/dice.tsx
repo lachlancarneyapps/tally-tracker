@@ -33,12 +33,12 @@ const DiceFace: React.FC<DiceProps> = ({ value, size, isRolling, index }) => {
   React.useEffect(() => {
     if (isRolling) {
       // Initial "throw" animation
-      const delay = index * 50; // Stagger the animations for multiple dice
+      const delay = index * 25; // Reduced from 50 to 25 for faster stagger
       
       translateY.value = withSequence(
         withDelay(
           delay,
-          withTiming(-size * 0.5, { duration: 300, easing: Easing.bezier(0.4, 0, 0.2, 1) })
+          withTiming(-size * 0.5, { duration: 150, easing: Easing.bezier(0.4, 0, 0.2, 1) })
         ),
         withSpring(0, { damping: 12, stiffness: 100 })
       );
@@ -47,7 +47,7 @@ const DiceFace: React.FC<DiceProps> = ({ value, size, isRolling, index }) => {
       translateX.value = withSequence(
         withDelay(
           delay,
-          withTiming(Math.random() * size * 0.3 * (Math.random() > 0.5 ? 1 : -1), { duration: 300 })
+          withTiming(Math.random() * size * 0.3 * (Math.random() > 0.5 ? 1 : -1), { duration: 150 })
         ),
         withSpring(0, { damping: 12, stiffness: 100 })
       );
@@ -57,7 +57,7 @@ const DiceFace: React.FC<DiceProps> = ({ value, size, isRolling, index }) => {
         withDelay(
           delay,
           withTiming(360 * (2 + Math.random()), {
-            duration: 600,
+            duration: 300,
             easing: Easing.bezier(0.25, 0.1, 0.25, 1),
           })
         ),
@@ -68,9 +68,9 @@ const DiceFace: React.FC<DiceProps> = ({ value, size, isRolling, index }) => {
       scale.value = withSequence(
         withDelay(
           delay,
-          withTiming(1.2, { duration: 150 })
+          withTiming(1.2, { duration: 75 })
         ),
-        withTiming(0.8, { duration: 150 }),
+        withTiming(0.8, { duration: 75 }),
         withSpring(1, {
           damping: 8,
           stiffness: 100,
@@ -205,7 +205,7 @@ export default function DiceScreen() {
 
     setTimeout(() => {
       setIsRolling(false);
-    }, 800);
+    }, 400); // Reduced from 800 to 400 to match faster animations
   }, [diceCount, isRolling, sound]);
 
   useEffect(() => {
