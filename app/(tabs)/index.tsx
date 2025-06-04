@@ -340,7 +340,7 @@ export default function TallyTracker() {
 
             <View style={[
               styles.progressBarContainer,
-              playerCount === 2 && { marginBottom: 40, paddingBottom: 10  }
+              playerCount === 2 && { marginBottom: 40, paddingBottom: 40  }
             ]}>
               <LinearGradient
                 colors={[lighterPrimary, lighterSecondary]}
