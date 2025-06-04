@@ -1,16 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw } from 'lucide-react-native';
-import { Audio } from 'expo-av';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withSequence,
-  withTiming,
-  withDelay,
-  Easing,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -33,7 +28,6 @@ const beadSpacing = 2;
 const beadUnit = beadWidth + beadSpacing;
 
 export default function AbacusScreen() {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
       Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) =>
@@ -44,73 +38,15 @@ export default function AbacusScreen() {
 
   const [resetKey, setResetKey] = useState(0);
 
-  useEffect(() => {
-    console.log('Starting sound initialization...');
-    
-    async function loadSound() {
-      try {
-        console.log('Setting audio mode...');
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: true,
-          shouldDuckAndroid: true,
-        });
-        console.log('Audio mode set successfully');
-
-        console.log('Creating sound object...');
-        const { sound } = await Audio.Sound.createAsync(
-          require('@/assets/sounds/click.mp3'),
-          {
-            shouldPlay: false,
-            volume: 1.0,
-            isLooping: false,
-          }
-        );
-        console.log('Sound object created successfully');
-        setSound(sound);
-      } catch (error) {
-        console.error('Error in loadSound:', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack
-        });
-      }
-    }
-
-    loadSound();
-
-    return () => {
-      console.log('Cleaning up sound...');
-      if (sound) {
-        sound.unloadAsync().catch(error => {
-          console.error('Error unloading sound:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-          });
-        });
-      }
-    };
-  }, []);
-
-  const playBeadSound = async () => {
-    try {
-      console.log('Attempting to play bead sound...');
-      if (sound) {
-        console.log('Sound exists, stopping current playback...');
-        await sound.stopAsync();
-        console.log('Playing sound...');
-        await sound.replayAsync();
-        console.log('Sound played successfully');
-      }
-    } catch (error) {
-      console.error('Error in playBeadSound:', {
-        name: error.name,
-        message: error.message,
-        stack: error.stack
-      });
-    }
-  };
+  const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
+    id: `rod-${rodIndex}`,
+    color: BEAD_COLORS[rodIndex],
+    beads: Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) => ({
+      id: `bead-${rodIndex}-${beadIndex}`,
+      index: beadIndex,
+      sharedX: sharedValuesRef.current[rodIndex][beadIndex],
+    })),
+  }));
 
   const resetAbacus = () => {
     sharedValuesRef.current.forEach((rodBeads) => {
@@ -167,8 +103,10 @@ export default function AbacusScreen() {
             }
           }
 
+          // Set the new position
           current.sharedX.value = proposedX;
 
+          // Stop if we're no longer overlapping or no next bead
           if (!hasNext) break;
 
           const overlapResolved = direction > 0
@@ -183,13 +121,6 @@ export default function AbacusScreen() {
       .onFinalize(() => {
         isDragging.value = false;
         lastTranslationX.value = 0;
-        playBeadSound().catch(error => {
-          console.error('Error in onFinalize playBeadSound:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-          });
-        });
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
