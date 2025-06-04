@@ -312,7 +312,7 @@ export default function TallyTracker() {
           ]}>
             <View style={[
   styles.totalBadge,
-  playerCount === 2 && { marginTop: 30, marginBottom: 10 }
+  playerCount === 2 && { marginTop: 20, marginBottom: 10 }
 ]}>
 
               <Text style={[
