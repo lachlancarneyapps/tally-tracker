@@ -1,11 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw } from 'lucide-react-native';
+import { Audio } from 'expo-av';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withSequence,
+  withTiming,
+  withDelay,
+  Easing,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -28,6 +33,7 @@ const beadSpacing = 2;
 const beadUnit = beadWidth + beadSpacing;
 
 export default function AbacusScreen() {
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
       Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) =>
@@ -38,15 +44,50 @@ export default function AbacusScreen() {
 
   const [resetKey, setResetKey] = useState(0);
 
-  const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
-    id: `rod-${rodIndex}`,
-    color: BEAD_COLORS[rodIndex],
-    beads: Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) => ({
-      id: `bead-${rodIndex}-${beadIndex}`,
-      index: beadIndex,
-      sharedX: sharedValuesRef.current[rodIndex][beadIndex],
-    })),
-  }));
+  useEffect(() => {
+    async function loadSound() {
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          shouldDuckAndroid: true,
+        });
+
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.wav' },
+          {
+            shouldPlay: false,
+            volume: 1.0,
+            isLooping: false,
+          }
+        );
+        setSound(sound);
+      } catch (error) {
+        console.error('Error loading sound:', error);
+      }
+    }
+
+    loadSound();
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync().catch(error => {
+          console.error('Error unloading sound:', error);
+        });
+      }
+    };
+  }, []);
+
+  const playBeadSound = async () => {
+    try {
+      if (sound) {
+        await sound.stopAsync();
+        await sound.playFromPositionAsync(0);
+      }
+    } catch (error) {
+      console.error('Error playing bead sound:', error);
+    }
+  };
 
   const resetAbacus = () => {
     sharedValuesRef.current.forEach((rodBeads) => {
@@ -56,6 +97,16 @@ export default function AbacusScreen() {
     });
     setResetKey(prev => prev + 1);
   };
+
+  const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
+    id: `rod-${rodIndex}`,
+    color: BEAD_COLORS[rodIndex],
+    beads: Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) => ({
+      id: `bead-${rodIndex}-${beadIndex}`,
+      index: beadIndex,
+      sharedX: sharedValuesRef.current[rodIndex][beadIndex],
+    })),
+  }));
 
   const BeadComponent = ({ bead, rod }: any) => {
     const isDragging = useSharedValue(false);
@@ -103,10 +154,8 @@ export default function AbacusScreen() {
             }
           }
 
-          // Set the new position
           current.sharedX.value = proposedX;
 
-          // Stop if we're no longer overlapping or no next bead
           if (!hasNext) break;
 
           const overlapResolved = direction > 0
@@ -118,9 +167,14 @@ export default function AbacusScreen() {
           index = nextIndex;
         }
       })
-      .onFinalize(() => {
+      .onFinalize(async () => {
         isDragging.value = false;
         lastTranslationX.value = 0;
+        try {
+          await playBeadSound();
+        } catch (error) {
+          console.error('Error playing sound in gesture handler:', error);
+        }
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -255,6 +309,9 @@ const styles = StyleSheet.create({
       android: {
         elevation: 8,
       },
+      web: {
+        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
+      },
     }),
   },
   rod: {
@@ -276,6 +333,9 @@ const styles = StyleSheet.create({
       },
       android: {
         elevation: 4,
+      },
+      web: {
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)',
       },
     }),
   },
