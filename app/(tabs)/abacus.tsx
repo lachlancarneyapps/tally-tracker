@@ -31,6 +31,7 @@ const beadUnit = beadWidth + beadSpacing;
 export default function AbacusScreen() {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [audioError, setAudioError] = useState<string | null>(null);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
       Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) =>
@@ -46,6 +47,7 @@ export default function AbacusScreen() {
       try {
         setAudioError(null);
         
+        // Configure audio mode with all necessary settings
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
@@ -53,21 +55,32 @@ export default function AbacusScreen() {
           playThroughEarpieceAndroid: false,
         });
         
+        // Use a WAV file instead of MP3
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
-          { shouldPlay: false },
+          { uri: 'https://www.soundjay.com/buttons/sounds/button-09.wav' },
+          { 
+            shouldPlay: false,
+            volume: 1.0,
+            rate: 1.0,
+            shouldCorrectPitch: true,
+          },
           (status) => {
             if (status.error) {
+              console.error('Audio status error:', status.error);
               setAudioError(`Audio playback error: ${status.error}`);
             }
           }
         );
         
+        await sound.loadAsync(); // Ensure sound is fully loaded
         setSound(sound);
+        setAudioLoaded(true);
+        setAudioError(null);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error loading sound';
-        setAudioError(`Failed to load sound: ${errorMessage}`);
         console.error('Error loading sound:', error);
+        setAudioError(`Failed to load sound: ${errorMessage}`);
+        setAudioLoaded(false);
       }
     }
 
@@ -75,17 +88,23 @@ export default function AbacusScreen() {
 
     return () => {
       if (sound) {
-        sound.unloadAsync().catch(error => {
+        try {
+          sound.unloadAsync();
+        } catch (error) {
           console.error('Error unloading sound:', error);
-        });
+        }
       }
     };
   }, []);
 
   const playBeadSound = async () => {
+    // Temporarily disable sound playback for testing
+    return;
+
+    /* Uncomment this section after testing
     try {
       setAudioError(null);
-      if (sound) {
+      if (sound && audioLoaded) {
         await sound.setPositionAsync(0);
         await sound.playAsync();
       }
@@ -94,6 +113,7 @@ export default function AbacusScreen() {
       setAudioError(`Failed to play sound: ${errorMessage}`);
       console.error('Error playing sound:', error);
     }
+    */
   };
 
   const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
