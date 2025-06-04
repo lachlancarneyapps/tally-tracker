@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw } from 'lucide-react-native';
+import { Audio } from 'expo-av';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -28,6 +29,7 @@ const beadSpacing = 2;
 const beadUnit = beadWidth + beadSpacing;
 
 export default function AbacusScreen() {
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
       Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) =>
@@ -37,6 +39,44 @@ export default function AbacusScreen() {
   );
 
   const [resetKey, setResetKey] = useState(0);
+
+  useEffect(() => {
+    async function loadSound() {
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+        });
+        
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
+          { shouldPlay: false }
+        );
+        setSound(sound);
+      } catch (error) {
+        console.error('Error loading sound:', error);
+      }
+    }
+
+    loadSound();
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, []);
+
+  const playBeadSound = async () => {
+    try {
+      if (sound) {
+        await sound.setPositionAsync(0);
+        await sound.playAsync();
+      }
+    } catch (error) {
+      console.error('Error playing sound:', error);
+    }
+  };
 
   const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
     id: `rod-${rodIndex}`,
@@ -103,10 +143,8 @@ export default function AbacusScreen() {
             }
           }
 
-          // Set the new position
           current.sharedX.value = proposedX;
 
-          // Stop if we're no longer overlapping or no next bead
           if (!hasNext) break;
 
           const overlapResolved = direction > 0
@@ -121,6 +159,7 @@ export default function AbacusScreen() {
       .onFinalize(() => {
         isDragging.value = false;
         lastTranslationX.value = 0;
+        playBeadSound();
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
