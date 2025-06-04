@@ -11,8 +11,6 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 const NUM_RODS = 6;
 const BEADS_PER_ROD = 10;
-const VERTICAL_BAR_WIDTH = 24;
-const VERTICAL_BAR_MARGIN = 12;
 
 const BEAD_COLORS = [
   '#FF69B4', '#FF6B6B', '#FFA500', '#FFD700', '#4169E1', '#9370DB'
@@ -23,7 +21,7 @@ const windowHeight = Dimensions.get('window').height;
 const abacusWidth = Math.min(windowWidth - 32, 1000);
 const abacusHeight = Math.min(windowHeight * 0.85, 800);
 const rodHeight = 4;
-const availableWidth = abacusWidth - 48 - (VERTICAL_BAR_WIDTH * 2 + VERTICAL_BAR_MARGIN * 4);
+const availableWidth = abacusWidth - 48;
 const beadWidth = Math.min(rodHeight * 10, availableWidth / (BEADS_PER_ROD * 1.5));
 const beadHeight = beadWidth * 1.7;
 const beadSpacing = 2;
@@ -105,8 +103,10 @@ export default function AbacusScreen() {
             }
           }
 
+          // Set the new position
           current.sharedX.value = proposedX;
 
+          // Stop if we're no longer overlapping or no next bead
           if (!hasNext) break;
 
           const overlapResolved = direction > 0
@@ -152,15 +152,6 @@ export default function AbacusScreen() {
     );
   };
 
-  const WoodenBar = () => (
-    <View style={styles.woodenBar}>
-      <View style={styles.woodGrain} />
-      <View style={[styles.woodGrain, { top: '30%' }]} />
-      <View style={[styles.woodGrain, { top: '60%' }]} />
-      <View style={[styles.woodGrain, { top: '90%' }]} />
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.content}>
@@ -179,8 +170,7 @@ export default function AbacusScreen() {
 
         <View style={styles.abacusWrapper} key={resetKey}>
           <View style={[styles.abacusContainer, { width: abacusWidth, height: abacusHeight }]}>
-            <WoodenBar />
-            <View style={[styles.frame, { width: availableWidth }]}>
+            <View style={[styles.frame, { width: abacusWidth }]}>
               {rods.map((rod) => (
                 <View
                   key={rod.id}
@@ -199,7 +189,6 @@ export default function AbacusScreen() {
                 </View>
               ))}
             </View>
-            <WoodenBar />
           </View>
         </View>
       </View>
@@ -245,40 +234,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   abacusContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    gap: VERTICAL_BAR_MARGIN,
-  },
-  woodenBar: {
-    width: VERTICAL_BAR_WIDTH,
-    height: '100%',
-    backgroundColor: '#C8A48C',
-    borderRadius: 12,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 2, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 6,
-      },
-      web: {
-        boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
-      },
-    }),
-  },
-  woodGrain: {
-    position: 'absolute',
-    width: '140%',
-    height: 1,
-    backgroundColor: 'rgba(139, 69, 19, 0.1)',
-    transform: [{ rotate: '30deg' }],
-    left: -5,
   },
   frame: {
     backgroundColor: '#1EA067',
@@ -290,15 +248,12 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 4,
-      },
-      web: {
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        elevation: 8,
       },
     }),
   },
@@ -321,9 +276,6 @@ const styles = StyleSheet.create({
       },
       android: {
         elevation: 4,
-      },
-      web: {
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.25)',
       },
     }),
   },
