@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw } from 'lucide-react-native';
@@ -7,10 +7,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withSequence,
-  withTiming,
-  withDelay,
-  Easing,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -33,7 +29,8 @@ const beadSpacing = 2;
 const beadUnit = beadWidth + beadSpacing;
 
 export default function AbacusScreen() {
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const isPlayingRef = useRef(false);
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
       Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) =>
@@ -41,13 +38,15 @@ export default function AbacusScreen() {
       )
     )
   );
-
-  const [resetKey, setResetKey] = useState(0);
+  const resetKeyRef = useRef(0);
+  const [resetKey, setResetKey] = React.useState(0);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function loadSound() {
       if (Platform.OS === 'web') return;
-      
+
       try {
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
@@ -57,13 +56,12 @@ export default function AbacusScreen() {
 
         const { sound } = await Audio.Sound.createAsync(
           { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.wav' },
-          {
-            shouldPlay: false,
-            volume: 1.0,
-            isLooping: false,
-          }
+          { shouldPlay: false, volume: 1.0 }
         );
-        setSound(sound);
+
+        if (isMounted) {
+          soundRef.current = sound;
+        }
       } catch (error) {
         console.error('Error loading sound:', error);
       }
@@ -72,24 +70,25 @@ export default function AbacusScreen() {
     loadSound();
 
     return () => {
-      if (sound && Platform.OS !== 'web') {
-        sound.unloadAsync().catch(error => {
-          console.error('Error unloading sound:', error);
-        });
+      isMounted = false;
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
       }
     };
   }, []);
 
   const playBeadSound = async () => {
-    if (Platform.OS === 'web') return;
-    
+    if (Platform.OS === 'web' || !soundRef.current || isPlayingRef.current) return;
+
     try {
-      if (sound) {
-        await sound.stopAsync();
-        await sound.playFromPositionAsync(0);
-      }
+      isPlayingRef.current = true;
+      await soundRef.current.stopAsync();
+      await soundRef.current.setPositionAsync(0);
+      await soundRef.current.playAsync();
+      isPlayingRef.current = false;
     } catch (error) {
       console.error('Error playing bead sound:', error);
+      isPlayingRef.current = false;
     }
   };
 
@@ -99,7 +98,8 @@ export default function AbacusScreen() {
         sharedValue.value = beadIndex * beadUnit;
       });
     });
-    setResetKey(prev => prev + 1);
+    resetKeyRef.current += 1;
+    setResetKey(resetKeyRef.current);
   };
 
   const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
@@ -171,14 +171,10 @@ export default function AbacusScreen() {
           index = nextIndex;
         }
       })
-      .onFinalize(async () => {
+      .onFinalize(() => {
         isDragging.value = false;
         lastTranslationX.value = 0;
-        try {
-          await playBeadSound();
-        } catch (error) {
-          console.error('Error playing sound in gesture handler:', error);
-        }
+        playBeadSound();
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
