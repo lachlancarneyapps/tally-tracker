@@ -9,20 +9,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-const NUM_RODS = 10;
+const NUM_RODS = 6;
 const BEADS_PER_ROD = 10;
 
 const BEAD_COLORS = [
-  '#E74C3C', // Red
-  '#FF69B4', // Pink
-  '#F39C12', // Orange
-  '#F1C40F', // Yellow
-  '#2ECC71', // Light Green
-  '#27AE60', // Dark Green
-  '#3498DB', // Light Blue
-  '#2980B9', // Dark Blue
-  '#9B59B6', // Light Purple
-  '#8E44AD', // Dark Purple
+  '#FF69B4', '#FF6B6B', '#FFA500', '#FFD700', '#4169E1', '#9370DB'
 ];
 
 const windowWidth = Dimensions.get('window').width;
@@ -112,8 +103,10 @@ export default function AbacusScreen() {
             }
           }
 
+          // Set the new position
           current.sharedX.value = proposedX;
 
+          // Stop if we're no longer overlapping or no next bead
           if (!hasNext) break;
 
           const overlapResolved = direction > 0
@@ -147,6 +140,8 @@ export default function AbacusScreen() {
               width: beadWidth,
               height: beadHeight,
               backgroundColor: rod.color,
+              borderColor: '#000',
+              borderWidth: 1,
               top: -(beadHeight / 2) + rodHeight / 2,
               left: 0,
             },
@@ -184,7 +179,8 @@ export default function AbacusScreen() {
                     {
                       height: rodHeight,
                       width: availableWidth,
-                      marginVertical: 35,
+                      marginVertical: 40,
+                      backgroundColor: '#3e2622',
                     }
                   ]}>
                   {rod.beads.map((bead) => (
@@ -243,26 +239,21 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   frame: {
-    backgroundColor: '#A57C5B',
+    backgroundColor: '#1EA067',
     borderRadius: 24,
     padding: 24,
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    borderWidth: 12,
-    borderColor: '#8B6B4B',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 4, height: 4 },
-        shadowOpacity: 0.4,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
         shadowRadius: 8,
       },
       android: {
-        elevation: 10,
-      },
-      web: {
-        boxShadow: '4px 4px 8px rgba(0, 0, 0, 0.4)',
+        elevation: 8,
       },
     }),
   },
@@ -272,39 +263,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 2,
     position: 'relative',
-    backgroundColor: '#D3D3D3',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      },
-      android: {
-        elevation: 2,
-      },
-      web: {
-        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
-      },
-    }),
   },
   bead: {
     position: 'absolute',
     borderRadius: 100,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 1, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
       },
       android: {
         elevation: 4,
-      },
-      web: {
-        boxShadow: '1px 2px 3px rgba(0, 0, 0, 0.3)',
       },
     }),
   },
