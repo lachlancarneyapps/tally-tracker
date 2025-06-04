@@ -53,7 +53,7 @@ export default function AbacusScreen() {
         });
         
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
+          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.wav' },
           { shouldPlay: false }
         );
         setSound(sound);
