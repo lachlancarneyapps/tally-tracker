@@ -15,7 +15,7 @@
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
     "expo": "53.0.9",
-    "expo-audio": "~1.0.0",
+    "expo-av": "~13.10.5",
     "expo-blur": "~14.1.4",
     "expo-camera": "~16.1.6",
     "expo-constants": "~17.1.6",
