@@ -7,6 +7,9 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
+  withDelay,
+  Easing,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -55,7 +58,7 @@ export default function AbacusScreen() {
         });
         
         const { sound } = await Audio.Sound.createAsync(
-          require('../../assets/sounds/click.mp3'),
+          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
           { 
             shouldPlay: false,
             volume: 1.0,
