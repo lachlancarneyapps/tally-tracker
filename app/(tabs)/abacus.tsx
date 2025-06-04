@@ -50,15 +50,24 @@ export default function AbacusScreen() {
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
+          shouldDuckAndroid: true,
         });
         
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/dice.mp3' },
-          { shouldPlay: false }
+          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
+          { 
+            shouldPlay: false,
+            volume: 1.0,
+            isLooping: false,
+          }
         );
         setSound(sound);
       } catch (error) {
-        console.error('Error loading sound:', error);
+        console.error('Error loading sound:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
       }
     }
 
@@ -74,11 +83,15 @@ export default function AbacusScreen() {
   const playBeadSound = async () => {
     try {
       if (sound) {
-        await sound.setPositionAsync(0);
-        await sound.playAsync();
+        await sound.stopAsync();
+        await sound.replayAsync();
       }
     } catch (error) {
-      console.error('Error playing sound:', error);
+      console.error('Error playing sound:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
     }
   };
 
