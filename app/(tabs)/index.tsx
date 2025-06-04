@@ -310,7 +310,11 @@ export default function TallyTracker() {
             styles.statsContainer,
             playerCount === 2 && styles.statsContainerDouble
           ]}>
-            <View style={styles.totalBadge}>
+            <View style={[
+  styles.totalBadge,
+  playerCount === 2 && { marginTop: 10 }
+]}>
+
               <Text style={[
                 styles.totalText,
                 { fontSize: fontSizes.total, color: primary }
