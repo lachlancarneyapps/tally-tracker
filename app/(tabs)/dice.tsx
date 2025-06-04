@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Platform }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Minus, RefreshCw } from 'lucide-react-native';
 import { Accelerometer } from 'expo-sensors';
+import { Audio } from 'expo-av';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -132,8 +133,31 @@ export default function DiceScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isShakeEnabled, setIsShakeEnabled] = useState(Platform.OS !== 'web');
   const [lastShakeTime, setLastShakeTime] = useState(0);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
+
+  useEffect(() => {
+    async function loadSound() {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/dice.mp3' },
+          { shouldPlay: false }
+        );
+        setSound(sound);
+      } catch (error) {
+        console.error('Error loading sound:', error);
+      }
+    }
+
+    loadSound();
+
+    return () => {
+      if (sound) {
+        sound.unloadAsync();
+      }
+    };
+  }, []);
 
   const adjustDiceCount = useCallback((increment: boolean) => {
     if (isRolling) {
@@ -158,11 +182,20 @@ export default function DiceScreen() {
     setDiceValues(Array(newCount).fill(6));
   }, [diceCount, isRolling]);
 
-  const rollDice = useCallback(() => {
+  const rollDice = useCallback(async () => {
     if (isRolling) return;
     
     setIsRolling(true);
     setError(null);
+
+    try {
+      if (sound) {
+        await sound.setPositionAsync(0);
+        await sound.playAsync();
+      }
+    } catch (error) {
+      console.error('Error playing sound:', error);
+    }
 
     const newValues = Array(diceCount).fill(0).map(() => 
       Math.floor(Math.random() * 6) + 1
@@ -173,7 +206,7 @@ export default function DiceScreen() {
     setTimeout(() => {
       setIsRolling(false);
     }, 800);
-  }, [diceCount, isRolling]);
+  }, [diceCount, isRolling, sound]);
 
   useEffect(() => {
     let subscription: ReturnType<typeof Accelerometer.addListener>;
