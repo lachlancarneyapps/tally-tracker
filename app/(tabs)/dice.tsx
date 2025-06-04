@@ -138,15 +138,15 @@ export default function DiceScreen() {
   const windowHeight = Dimensions.get('window').height;
 
   useEffect(() => {
+    // Skip audio setup on web platform
+    if (Platform.OS === 'web') return;
+
     async function loadSound() {
       try {
-        // Skip audio mode configuration on web platform
-        if (Platform.OS !== 'web') {
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: true,
-          });
-        }
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+        });
         
         const { sound } = await Audio.Sound.createAsync(
           { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/dice.mp3' },
@@ -196,13 +196,14 @@ export default function DiceScreen() {
     setIsRolling(true);
     setError(null);
 
-    try {
-      if (sound) {
+    // Only play sound if not on web platform and sound is loaded
+    if (Platform.OS !== 'web' && sound) {
+      try {
         await sound.setPositionAsync(0);
         await sound.playAsync();
+      } catch (error) {
+        console.error('Error playing sound:', error);
       }
-    } catch (error) {
-      console.error('Error playing sound:', error);
     }
 
     const newValues = Array(diceCount).fill(0).map(() => 
