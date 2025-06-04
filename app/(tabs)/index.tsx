@@ -574,8 +574,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   twoPlayerQuadrant: {
-    flex: 0,
-    minHeight: 300,
+    flex: 1,
+    minHeight: 100,
   },
   multiPlayerQuadrant: {
     flex: 1,
