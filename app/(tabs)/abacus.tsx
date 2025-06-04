@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw } from 'lucide-react-native';
@@ -31,6 +31,9 @@ const beadUnit = beadWidth + beadSpacing;
 export default function AbacusScreen() {
   const soundRef = useRef<Audio.Sound | null>(null);
   const isPlayingRef = useRef(false);
+  const [isSoundReady, setIsSoundReady] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
+
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
       Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) =>
@@ -38,8 +41,6 @@ export default function AbacusScreen() {
       )
     )
   );
-  const resetKeyRef = useRef(0);
-  const [resetKey, setResetKey] = React.useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -55,12 +56,13 @@ export default function AbacusScreen() {
         });
 
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.wav' },
+          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
           { shouldPlay: false, volume: 1.0 }
         );
 
         if (isMounted) {
           soundRef.current = sound;
+          setIsSoundReady(true);
         }
       } catch (error) {
         console.error('Error loading sound:', error);
@@ -78,16 +80,16 @@ export default function AbacusScreen() {
   }, []);
 
   const playBeadSound = async () => {
-    if (Platform.OS === 'web' || !soundRef.current || isPlayingRef.current) return;
+    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current || isPlayingRef.current) return;
 
     try {
       isPlayingRef.current = true;
       await soundRef.current.stopAsync();
       await soundRef.current.setPositionAsync(0);
       await soundRef.current.playAsync();
-      isPlayingRef.current = false;
     } catch (error) {
       console.error('Error playing bead sound:', error);
+    } finally {
       isPlayingRef.current = false;
     }
   };
@@ -98,8 +100,7 @@ export default function AbacusScreen() {
         sharedValue.value = beadIndex * beadUnit;
       });
     });
-    resetKeyRef.current += 1;
-    setResetKey(resetKeyRef.current);
+    setResetKey((prev) => prev + 1);
   };
 
   const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
