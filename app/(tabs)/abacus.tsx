@@ -46,6 +46,8 @@ export default function AbacusScreen() {
 
   useEffect(() => {
     async function loadSound() {
+      if (Platform.OS === 'web') return;
+      
       try {
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
@@ -70,7 +72,7 @@ export default function AbacusScreen() {
     loadSound();
 
     return () => {
-      if (sound) {
+      if (sound && Platform.OS !== 'web') {
         sound.unloadAsync().catch(error => {
           console.error('Error unloading sound:', error);
         });
@@ -79,6 +81,8 @@ export default function AbacusScreen() {
   }, []);
 
   const playBeadSound = async () => {
+    if (Platform.OS === 'web') return;
+    
     try {
       if (sound) {
         await sound.stopAsync();

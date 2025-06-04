@@ -139,6 +139,8 @@ export default function DiceScreen() {
 
   useEffect(() => {
     async function loadSound() {
+      if (Platform.OS === 'web') return;
+
       try {
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
@@ -158,7 +160,7 @@ export default function DiceScreen() {
     loadSound();
 
     return () => {
-      if (sound) {
+      if (sound && Platform.OS !== 'web') {
         sound.unloadAsync();
       }
     };
@@ -193,13 +195,15 @@ export default function DiceScreen() {
     setIsRolling(true);
     setError(null);
 
-    try {
-      if (sound) {
-        await sound.setPositionAsync(0);
-        await sound.playAsync();
+    if (Platform.OS !== 'web') {
+      try {
+        if (sound) {
+          await sound.setPositionAsync(0);
+          await sound.playAsync();
+        }
+      } catch (error) {
+        console.error('Error playing sound:', error);
       }
-    } catch (error) {
-      console.error('Error playing sound:', error);
     }
 
     const newValues = Array(diceCount).fill(0).map(() => 
