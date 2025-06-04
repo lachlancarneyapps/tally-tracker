@@ -9,30 +9,21 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
-const NUM_RODS = 10;
+const NUM_RODS = 6;
 const BEADS_PER_ROD = 10;
 
 const BEAD_COLORS = [
-  '#FF1744', // Vibrant Red
-  '#FF4081', // Pink
-  '#FF9100', // Orange
-  '#FFEA00', // Yellow
-  '#00E676', // Green
-  '#00B0FF', // Light Blue
-  '#2979FF', // Blue
-  '#651FFF', // Purple
-  '#D500F9', // Magenta
-  '#F50057', // Deep Pink
+  '#FF69B4', '#FF6B6B', '#FFA500', '#FFD700', '#4169E1', '#9370DB'
 ];
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const abacusWidth = Math.min(windowWidth - 32, 1000);
 const abacusHeight = Math.min(windowHeight * 0.85, 800);
-const rodHeight = 6; // Increased rod thickness
-const availableWidth = abacusWidth - 64; // Increased padding for wooden frame
-const beadWidth = Math.min(rodHeight * 8, availableWidth / (BEADS_PER_ROD * 1.5));
-const beadHeight = beadWidth * 1.2; // More oval-shaped beads
+const rodHeight = 4;
+const availableWidth = abacusWidth - 48;
+const beadWidth = Math.min(rodHeight * 10, availableWidth / (BEADS_PER_ROD * 1.5));
+const beadHeight = beadWidth * 1.7;
 const beadSpacing = 2;
 const beadUnit = beadWidth + beadSpacing;
 
@@ -112,8 +103,10 @@ export default function AbacusScreen() {
             }
           }
 
+          // Set the new position
           current.sharedX.value = proposedX;
 
+          // Stop if we're no longer overlapping or no next bead
           if (!hasNext) break;
 
           const overlapResolved = direction > 0
@@ -147,7 +140,7 @@ export default function AbacusScreen() {
               width: beadWidth,
               height: beadHeight,
               backgroundColor: rod.color,
-              borderColor: 'rgba(0, 0, 0, 0.2)',
+              borderColor: '#000',
               borderWidth: 1,
               top: -(beadHeight / 2) + rodHeight / 2,
               left: 0,
@@ -186,8 +179,8 @@ export default function AbacusScreen() {
                     {
                       height: rodHeight,
                       width: availableWidth,
-                      marginVertical: 32,
-                      backgroundColor: '#B0BEC5', // Metallic silver color
+                      marginVertical: 40,
+                      backgroundColor: '#3e2622',
                     }
                   ]}>
                   {rod.beads.map((bead) => (
@@ -246,26 +239,21 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   frame: {
-    backgroundColor: '#8B4513', // Rich wooden brown
+    backgroundColor: '#1EA067',
     borderRadius: 24,
-    padding: 32,
+    padding: 24,
     flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    borderWidth: 12,
-    borderColor: '#A0522D', // Slightly lighter brown for border
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
       },
       android: {
-        elevation: 12,
-      },
-      web: {
-        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+        elevation: 8,
       },
     }),
   },
@@ -273,22 +261,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    borderRadius: 3,
+    borderRadius: 2,
     position: 'relative',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-      },
-      android: {
-        elevation: 2,
-      },
-      web: {
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
-      },
-    }),
   },
   bead: {
     position: 'absolute',
@@ -297,14 +271,11 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.25,
         shadowRadius: 4,
       },
       android: {
         elevation: 4,
-      },
-      web: {
-        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
       },
     }),
   },
