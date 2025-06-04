@@ -140,10 +140,13 @@ export default function DiceScreen() {
   useEffect(() => {
     async function loadSound() {
       try {
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: true,
-        });
+        // Skip audio mode configuration on web platform
+        if (Platform.OS !== 'web') {
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: true,
+          });
+        }
         
         const { sound } = await Audio.Sound.createAsync(
           { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/dice.mp3' },
