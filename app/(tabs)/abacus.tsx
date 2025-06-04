@@ -45,25 +45,31 @@ export default function AbacusScreen() {
   const [resetKey, setResetKey] = useState(0);
 
   useEffect(() => {
+    console.log('Starting sound initialization...');
+    
     async function loadSound() {
       try {
+        console.log('Setting audio mode...');
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
           shouldDuckAndroid: true,
         });
-        
+        console.log('Audio mode set successfully');
+
+        console.log('Creating sound object...');
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
-          { 
+          require('@/assets/sounds/click.mp3'),
+          {
             shouldPlay: false,
             volume: 1.0,
             isLooping: false,
           }
         );
+        console.log('Sound object created successfully');
         setSound(sound);
       } catch (error) {
-        console.error('Error loading sound:', {
+        console.error('Error in loadSound:', {
           name: error.name,
           message: error.message,
           stack: error.stack
@@ -74,36 +80,37 @@ export default function AbacusScreen() {
     loadSound();
 
     return () => {
+      console.log('Cleaning up sound...');
       if (sound) {
-        sound.unloadAsync();
+        sound.unloadAsync().catch(error => {
+          console.error('Error unloading sound:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
+        });
       }
     };
   }, []);
 
   const playBeadSound = async () => {
     try {
+      console.log('Attempting to play bead sound...');
       if (sound) {
+        console.log('Sound exists, stopping current playback...');
         await sound.stopAsync();
+        console.log('Playing sound...');
         await sound.replayAsync();
+        console.log('Sound played successfully');
       }
     } catch (error) {
-      console.error('Error playing sound:', {
+      console.error('Error in playBeadSound:', {
         name: error.name,
         message: error.message,
         stack: error.stack
       });
     }
   };
-
-  const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
-    id: `rod-${rodIndex}`,
-    color: BEAD_COLORS[rodIndex],
-    beads: Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) => ({
-      id: `bead-${rodIndex}-${beadIndex}`,
-      index: beadIndex,
-      sharedX: sharedValuesRef.current[rodIndex][beadIndex],
-    })),
-  }));
 
   const resetAbacus = () => {
     sharedValuesRef.current.forEach((rodBeads) => {
@@ -176,7 +183,13 @@ export default function AbacusScreen() {
       .onFinalize(() => {
         isDragging.value = false;
         lastTranslationX.value = 0;
-        playBeadSound();
+        playBeadSound().catch(error => {
+          console.error('Error in onFinalize playBeadSound:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
+        });
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
