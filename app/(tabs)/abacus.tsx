@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Dimensions, Platform, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw } from 'lucide-react-native';
 import { Audio } from 'expo-av';
@@ -30,6 +30,7 @@ const beadUnit = beadWidth + beadSpacing;
 
 export default function AbacusScreen() {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [audioError, setAudioError] = useState<string | null>(null);
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
       Array.from({ length: BEADS_PER_ROD }, (_, beadIndex) =>
@@ -43,17 +44,29 @@ export default function AbacusScreen() {
   useEffect(() => {
     async function loadSound() {
       try {
+        setAudioError(null);
+        
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
+          shouldDuckAndroid: true,
+          playThroughEarpieceAndroid: false,
         });
         
         const { sound } = await Audio.Sound.createAsync(
           { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
-          { shouldPlay: false }
+          { shouldPlay: false },
+          (status) => {
+            if (status.error) {
+              setAudioError(`Audio playback error: ${status.error}`);
+            }
+          }
         );
+        
         setSound(sound);
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error loading sound';
+        setAudioError(`Failed to load sound: ${errorMessage}`);
         console.error('Error loading sound:', error);
       }
     }
@@ -62,18 +75,23 @@ export default function AbacusScreen() {
 
     return () => {
       if (sound) {
-        sound.unloadAsync();
+        sound.unloadAsync().catch(error => {
+          console.error('Error unloading sound:', error);
+        });
       }
     };
   }, []);
 
   const playBeadSound = async () => {
     try {
+      setAudioError(null);
       if (sound) {
         await sound.setPositionAsync(0);
         await sound.playAsync();
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error playing sound';
+      setAudioError(`Failed to play sound: ${errorMessage}`);
       console.error('Error playing sound:', error);
     }
   };
@@ -207,6 +225,12 @@ export default function AbacusScreen() {
           </TouchableOpacity>
         </View>
 
+        {audioError && (
+          <View style={styles.audioErrorContainer}>
+            <Text style={styles.audioErrorText}>{audioError}</Text>
+          </View>
+        )}
+
         <View style={styles.abacusWrapper} key={resetKey}>
           <View style={[styles.abacusContainer, { width: abacusWidth, height: abacusHeight }]}>
             <View style={[styles.frame, { width: abacusWidth }]}>
@@ -317,5 +341,20 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
+  },
+  audioErrorContainer: {
+    backgroundColor: 'rgba(255, 99, 71, 0.2)',
+    padding: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 99, 71, 0.3)',
+  },
+  audioErrorText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'Inter_400Regular',
+    textAlign: 'center',
   },
 });
