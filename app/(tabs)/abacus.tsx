@@ -47,7 +47,6 @@ export default function AbacusScreen() {
       try {
         setAudioError(null);
         
-        // Configure audio mode with all necessary settings
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
@@ -55,9 +54,8 @@ export default function AbacusScreen() {
           playThroughEarpieceAndroid: false,
         });
         
-        // Use a WAV file instead of MP3
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://www.soundjay.com/buttons/sounds/button-09.wav' },
+          require('../../assets/sounds/click.mp3'),
           { 
             shouldPlay: false,
             volume: 1.0,
@@ -72,7 +70,6 @@ export default function AbacusScreen() {
           }
         );
         
-        await sound.loadAsync(); // Ensure sound is fully loaded
         setSound(sound);
         setAudioLoaded(true);
         setAudioError(null);
@@ -98,10 +95,6 @@ export default function AbacusScreen() {
   }, []);
 
   const playBeadSound = async () => {
-    // Temporarily disable sound playback for testing
-    return;
-
-    /* Uncomment this section after testing
     try {
       setAudioError(null);
       if (sound && audioLoaded) {
@@ -113,7 +106,6 @@ export default function AbacusScreen() {
       setAudioError(`Failed to play sound: ${errorMessage}`);
       console.error('Error playing sound:', error);
     }
-    */
   };
 
   const rods = Array.from({ length: NUM_RODS }, (_, rodIndex) => ({
