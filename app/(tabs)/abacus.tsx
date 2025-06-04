@@ -56,7 +56,7 @@ export default function AbacusScreen() {
         });
 
         const { sound } = await Audio.Sound.createAsync(
-          { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
+          require('../assets/sounds/abacus.mp3'),
           { shouldPlay: false, volume: 1.0 }
         );
 
@@ -175,11 +175,7 @@ export default function AbacusScreen() {
       .onFinalize(() => {
         isDragging.value = false;
         lastTranslationX.value = 0;
-
-        // Delay to avoid calling sound inside gesture thread
-        //setTimeout(() => {
-         // playBeadSound().catch((e) => console.error('Audio crash:', e));
-        //}, 0);
+        playBeadSound().catch((e) => console.error('Audio crash:', e));
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
