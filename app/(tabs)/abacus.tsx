@@ -177,9 +177,9 @@ export default function AbacusScreen() {
         lastTranslationX.value = 0;
 
         // Delay to avoid calling sound inside gesture thread
-        setTimeout(() => {
-          playBeadSound().catch((e) => console.error('Audio crash:', e));
-        }, 0);
+        //setTimeout(() => {
+         // playBeadSound().catch((e) => console.error('Audio crash:', e));
+        //}, 0);
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
