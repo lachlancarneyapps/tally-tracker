@@ -1,8 +1,9 @@
 import { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Pressable, LayoutChangeEvent, Modal, Platform, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RotateCcw, Plus, Minus, Smile, Frown, X, Check, Palette, Hash, RefreshCw } from 'lucide-react-native';
+import { RotateCcw, Plus, Minus, Smile, Frown, X, Check, Palette, RefreshCw } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import TallyIcon from '../../assets/images/tally-icon.svg';
 
 interface TallyData {
   name: string;
@@ -301,7 +302,7 @@ export default function TallyTracker() {
                   showTallyMarks && { backgroundColor: '#fff' }
                 ]}
                 onPress={() => setShowTallyMarks(!showTallyMarks)}>
-                <Hash size={19} color={showTallyMarks ? primary : '#fff'} />
+                <TallyIcon width={19} height={19} color={showTallyMarks ? primary : '#fff'} />
               </TouchableOpacity>
             )}
           </View>
@@ -311,10 +312,9 @@ export default function TallyTracker() {
             playerCount === 2 && styles.statsContainerDouble
           ]}>
             <View style={[
-  styles.totalBadge,
-  playerCount === 2 && { marginTop: 20, marginBottom: 10 }
-]}>
-
+              styles.totalBadge,
+              playerCount === 2 && { marginTop: 20, marginBottom: 10 }
+            ]}>
               <Text style={[
                 styles.totalText,
                 { fontSize: fontSizes.total, color: primary }
@@ -350,7 +350,6 @@ export default function TallyTracker() {
                 style={[
                   styles.progressBar,
                   { 
-                
                     width: `${accuracy}%`,
                     opacity: 0.9,
                   }
