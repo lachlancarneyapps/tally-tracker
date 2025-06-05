@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Minus, RefreshCw } from 'lucide-react-native';
@@ -134,7 +134,7 @@ export default function DiceScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isShakeEnabled, setIsShakeEnabled] = useState(Platform.OS !== 'web');
   const [lastShakeTime, setLastShakeTime] = useState(0);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
@@ -153,7 +153,7 @@ export default function DiceScreen() {
           require('../../assets/sounds/dice.mp3'),
           { shouldPlay: false }
         );
-        setSound(sound);
+        soundRef.current = sound;
         console.log('Dice sound loaded successfully');
       } catch (error) {
         console.error('Error loading dice sound:', error);
@@ -163,17 +163,19 @@ export default function DiceScreen() {
     loadSound();
 
     return () => {
-      if (sound) {
-        const cleanup = async () => {
+      const cleanup = async () => {
+        if (soundRef.current) {
           try {
+            const sound = soundRef.current;
             await sound.stopAsync();
             await sound.unloadAsync();
           } catch (error) {
             console.error('Error cleaning up sound:', error);
           }
-        };
-        cleanup();
-      }
+          soundRef.current = null;
+        }
+      };
+      cleanup();
     };
   }, []);
 
@@ -215,11 +217,11 @@ export default function DiceScreen() {
     setIsRolling(true);
     setError(null);
 
-    if (sound) {
+    if (soundRef.current) {
       try {
         console.log('Playing dice sound');
-        await sound.setPositionAsync(0);
-        await sound.playAsync();
+        await soundRef.current.setPositionAsync(0);
+        await soundRef.current.playAsync();
       } catch (error) {
         console.error('Error playing dice sound:', error);
       }
@@ -234,7 +236,7 @@ export default function DiceScreen() {
     setTimeout(() => {
       setIsRolling(false);
     }, 400);
-  }, [diceCount, isRolling, sound]);
+  }, [diceCount, isRolling]);
 
   useEffect(() => {
     let subscription: ReturnType<typeof Accelerometer.addListener>;
