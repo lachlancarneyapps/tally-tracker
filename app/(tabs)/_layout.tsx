@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet, View, Image, Platform } from 'react-native';
-import { Hash, Dice5 } from 'lucide-react-native';
+import { Dice5 } from 'lucide-react-native';
 
 const TabBarIcon = ({ Icon, color }: { Icon: any; color: string }) => (
   <View style={styles.iconContainer}>
@@ -14,6 +14,18 @@ const AbacusTabIcon = ({ color }: { color: string }) => (
       source={require('../../assets/images/abacus-icon.svg')}
       style={[
         styles.abacusIcon,
+        { tintColor: color }
+      ]}
+    />
+  </View>
+);
+
+const TallyTabIcon = ({ color }: { color: string }) => (
+  <View style={styles.iconContainer}>
+    <Image
+      source={require('../../assets/images/tally-icon.svg')}
+      style={[
+        styles.tallyIcon,
         { tintColor: color }
       ]}
     />
@@ -36,7 +48,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Tally',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Hash} color={color} />,
+          tabBarIcon: ({ color }) => <TallyTabIcon color={color} />,
         }}
       />
       <Tabs.Screen
@@ -80,6 +92,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   abacusIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+  tallyIcon: {
     width: 24,
     height: 24,
     resizeMode: 'contain',
