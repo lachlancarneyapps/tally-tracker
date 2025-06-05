@@ -55,8 +55,13 @@ export default function AbacusScreen() {
           shouldDuckAndroid: true,
         });
 
+        const source = Platform.select({
+          web: { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
+          default: require('../../assets/sounds/abacus.mp3')
+        });
+
         const { sound } = await Audio.Sound.createAsync(
-          require('../../assets/sounds/abacus.mp3'),
+          source,
           { shouldPlay: false, volume: 1.0 }
         );
 

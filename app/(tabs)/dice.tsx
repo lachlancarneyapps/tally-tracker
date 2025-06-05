@@ -148,8 +148,13 @@ export default function DiceScreen() {
           staysActiveInBackground: true,
         });
         
+        const source = Platform.select({
+          web: { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/dice.mp3' },
+          default: require('../../assets/sounds/dice.mp3')
+        });
+        
         const { sound } = await Audio.Sound.createAsync(
-          require('../../assets/sounds/dice.mp3'),
+          source,
           { shouldPlay: false }
         );
         setSound(sound);
