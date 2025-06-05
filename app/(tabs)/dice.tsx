@@ -108,7 +108,7 @@ const DiceFace: React.FC<DiceProps> = ({ value, size, isRolling, index }) => {
         key={index}
         style={{
           position: 'absolute',
-         css-view-g5y9jx r-transitionProperty-1i6wzkk r-userSelect-lrvibr r-cursor-1loqt21 r-touchAction-1otgn73 r-backgroundColor-ztyd71 r-borderRadius-y47klf r-padding-edyy15width: dotSize,
+          width: dotSize,
           height: dotSize,
           borderRadius: dotSize / 2,
           backgroundColor: '#0A4E2E',
@@ -279,7 +279,7 @@ export default function DiceScreen() {
               ]}
               onPress={() => adjustDiceCount(false)}
               disabled={diceCount <= 1 || isRolling}>
-              <Minus color={diceCount <= 1 || isRolling ? "#666" : "#fff"} size={24} />
+              <Minus color={diceCount <= 1 || isRolling ? "#666" : "#A7E350"} size={24} />
             </TouchableOpacity>
             <Text style={styles.diceCount}>{diceCount}</Text>
             <TouchableOpacity
@@ -289,7 +289,7 @@ export default function DiceScreen() {
               ]}
               onPress={() => adjustDiceCount(true)}
               disabled={diceCount >= 4 || isRolling}>
-              <Plus color={diceCount >= 4 || isRolling ? "#666" : "#fff"} size={24} />
+              <Plus color={diceCount >= 4 || isRolling ? "#666" : "#A7E350"} size={24} />
             </TouchableOpacity>
           </View>
         </View>
