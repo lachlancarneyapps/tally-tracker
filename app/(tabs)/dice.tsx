@@ -141,6 +141,7 @@ export default function DiceScreen() {
   useEffect(() => {
     async function loadSound() {
       try {
+        // Only set audio mode on native platforms
         if (Platform.OS !== 'web') {
           await Audio.setAudioModeAsync({
             playsInSilentModeIOS: true,
