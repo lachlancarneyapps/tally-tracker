@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    height: 80,
+    height: 40, // Decreased from 80 to 40
   },
   logoContainer: {
     flex: 1,
