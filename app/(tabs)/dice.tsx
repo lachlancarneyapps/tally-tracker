@@ -163,7 +163,15 @@ export default function DiceScreen() {
 
     return () => {
       if (sound) {
-        sound.unloadAsync();
+        const cleanup = async () => {
+          try {
+            await sound.stopAsync();
+            await sound.unloadAsync();
+          } catch (error) {
+            console.error('Error cleaning up sound:', error);
+          }
+        };
+        cleanup();
       }
     };
   }, []);

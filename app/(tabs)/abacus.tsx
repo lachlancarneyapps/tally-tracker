@@ -75,7 +75,15 @@ export default function AbacusScreen() {
     return () => {
       isMounted = false;
       if (soundRef.current) {
-        soundRef.current.unloadAsync().catch(() => {});
+        const cleanup = async () => {
+          try {
+            await soundRef.current?.stopAsync();
+            await soundRef.current?.unloadAsync();
+          } catch (error) {
+            console.error('Error cleaning up sound:', error);
+          }
+        };
+        cleanup();
       }
     };
   }, []);
