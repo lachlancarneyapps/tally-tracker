@@ -1,11 +1,22 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
-import { Hash, Dice5, Calculator } from 'lucide-react-native';
-import { Platform } from 'react-native';
+import { StyleSheet, View, Image, Platform } from 'react-native';
+import { Hash, Dice5 } from 'lucide-react-native';
 
 const TabBarIcon = ({ Icon, color }: { Icon: any; color: string }) => (
   <View style={styles.iconContainer}>
     <Icon size={24} color={color} strokeWidth={2.5} />
+  </View>
+);
+
+const AbacusTabIcon = ({ color }: { color: string }) => (
+  <View style={styles.iconContainer}>
+    <Image
+      source={require('../../assets/images/abacus-icon.svg')}
+      style={[
+        styles.abacusIcon,
+        { tintColor: color }
+      ]}
+    />
   </View>
 );
 
@@ -39,7 +50,7 @@ export default function TabLayout() {
         name="abacus"
         options={{
           title: 'Abacus',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Calculator} color={color} />,
+          tabBarIcon: ({ color }) => <AbacusTabIcon color={color} />,
         }}
       />
     </Tabs>
@@ -67,5 +78,10 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  abacusIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
   },
 });
