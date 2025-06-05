@@ -139,28 +139,23 @@ export default function DiceScreen() {
   const windowHeight = Dimensions.get('window').height;
 
   useEffect(() => {
-    // Skip audio setup on web platform
-    if (Platform.OS === 'web') return;
-
     async function loadSound() {
       try {
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: true,
-        });
-        
-        const source = Platform.select({
-          web: { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/dice.mp3' },
-          default: require('../../assets/sounds/dice.mp3')
-        });
-        
+        if (Platform.OS !== 'web') {
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: true,
+          });
+        }
+
         const { sound } = await Audio.Sound.createAsync(
-          source,
+          require('../../assets/sounds/dice.mp3'),
           { shouldPlay: false }
         );
         setSound(sound);
+        console.log('Dice sound loaded successfully');
       } catch (error) {
-        console.error('Error loading sound:', error);
+        console.error('Error loading dice sound:', error);
       }
     }
 
@@ -211,13 +206,13 @@ export default function DiceScreen() {
     setIsRolling(true);
     setError(null);
 
-    // Only play sound if not on web platform and sound is loaded
-    if (Platform.OS !== 'web' && sound) {
+    if (sound) {
       try {
+        console.log('Playing dice sound');
         await sound.setPositionAsync(0);
         await sound.playAsync();
       } catch (error) {
-        console.error('Error playing sound:', error);
+        console.error('Error playing dice sound:', error);
       }
     }
 
