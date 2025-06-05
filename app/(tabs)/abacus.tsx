@@ -49,12 +49,14 @@ export default function AbacusScreen() {
       if (Platform.OS === 'web') return;
 
       try {
+        console.log('Setting up audio mode...');
         await Audio.setAudioModeAsync({
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
           shouldDuckAndroid: true,
         });
 
+        console.log('Loading sound file...');
         const source = Platform.select({
           web: { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
           default: require('../../assets/sounds/abacus.mp3')
@@ -68,6 +70,7 @@ export default function AbacusScreen() {
         if (isMounted) {
           soundRef.current = sound;
           setIsSoundReady(true);
+          console.log('Sound loaded successfully!');
         }
       } catch (error) {
         console.error('Error loading sound:', error);
@@ -85,12 +88,21 @@ export default function AbacusScreen() {
   }, []);
 
   const playBeadSound = async () => {
-    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current) return;
+    console.log('Attempting to play bead sound...');
+    console.log('Sound ready:', isSoundReady);
+    console.log('Sound ref exists:', !!soundRef.current);
+
+    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current) {
+      console.log('Skipping sound playback due to conditions not met');
+      return;
+    }
 
     try {
+      console.log('Playing sound...');
       await soundRef.current.stopAsync();
       await soundRef.current.setPositionAsync(0);
       await soundRef.current.playAsync();
+      console.log('Sound played successfully!');
     } catch (error) {
       console.error('Error playing bead sound:', error);
     }
@@ -184,7 +196,10 @@ export default function AbacusScreen() {
         const finalPosition = bead.sharedX.value;
         const initialPosition = lastBeadPositionRef.current[beadKey];
         if (Math.abs(finalPosition - initialPosition) > beadUnit / 2) {
+          console.log('Bead moved significantly, playing sound...');
           playBeadSound().catch(console.error);
+        } else {
+          console.log('Bead movement too small, skipping sound');
         }
       });
 
