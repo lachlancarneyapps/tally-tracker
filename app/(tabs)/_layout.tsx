@@ -1,6 +1,8 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, View, Image, Platform } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
 import { Dice5 } from 'lucide-react-native';
+import AbacusIcon from '../../assets/images/abacus-icon.svg';
+import TallyIcon from '../../assets/images/tally-icon.svg';
 
 const TabBarIcon = ({ Icon, color }: { Icon: any; color: string }) => (
   <View style={styles.iconContainer}>
@@ -10,25 +12,13 @@ const TabBarIcon = ({ Icon, color }: { Icon: any; color: string }) => (
 
 const AbacusTabIcon = ({ color }: { color: string }) => (
   <View style={styles.iconContainer}>
-    <Image
-      source={require('../../assets/images/abacus-icon.svg')}
-      style={[
-        styles.abacusIcon,
-        { tintColor: color }
-      ]}
-    />
+    <AbacusIcon width={24} height={24} color={color} />
   </View>
 );
 
 const TallyTabIcon = ({ color }: { color: string }) => (
   <View style={styles.iconContainer}>
-    <Image
-      source={require('../../assets/images/tally-icon.svg')}
-      style={[
-        styles.tallyIcon,
-        { tintColor: color }
-      ]}
-    />
+    <TallyIcon width={24} height={24} color={color} />
   </View>
 );
 
@@ -90,15 +80,5 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  abacusIcon: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
-  },
-  tallyIcon: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
   },
 });
