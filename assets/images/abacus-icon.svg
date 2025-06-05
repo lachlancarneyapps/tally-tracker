@@ -1,7 +1,4 @@
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
-<svg fill="#ffffff" width="800px" height="800px" viewBox="-0.97 0 32.852 32.852" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff">
-<g id="SVGRepo_bgCarrier" stroke-width="0"/>
-<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
-<g id="SVGRepo_iconCarrier"> <g transform="translate(-161.231 -321.265)"> <path d="M162.231,354.117a1,1,0,0,1-1-1V322.265a1,1,0,0,1,2,0v30.852A1,1,0,0,1,162.231,354.117Z"/> <path d="M191.136,354.117a1,1,0,0,1-1-1V322.265a1,1,0,0,1,2,0v30.852A1,1,0,0,1,191.136,354.117Z"/> <path d="M191.136,331.127h-28.9a1,1,0,0,1,0-2h28.9a1,1,0,1,1,0,2Z"/> <path d="M191.136,338.691h-28.9a1,1,0,0,1,0-2h28.9a1,1,0,0,1,0,2Z"/> <path d="M191.136,346.848h-28.9a1,1,0,0,1,0-2h28.9a1,1,0,0,1,0,2Z"/> <rect height="5.684" rx="1.754" transform="translate(164.529 327.284)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(169.044 327.284)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(164.529 334.849)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(169.044 334.849)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(179.365 334.849)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(183.88 334.849)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(173.559 327.284)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(175.414 343.007)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(179.929 343.007)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(184.444 343.007)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(184.444 327.284)" width="3.507"/> <rect height="5.684" rx="1.754" transform="translate(164.529 343.007)" width="3.507"/> </g> </g>
-</svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2 4V20M22 4V20M4 9H20M4 15H20M8 4V9M12 9V15M16 15V20M12 15V20M8 15V20M16 4V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
