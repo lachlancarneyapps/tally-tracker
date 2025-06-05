@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Minus, RefreshCw } from 'lucide-react-native';
@@ -134,48 +134,42 @@ export default function DiceScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isShakeEnabled, setIsShakeEnabled] = useState(Platform.OS !== 'web');
   const [lastShakeTime, setLastShakeTime] = useState(0);
-  const soundRef = useRef<Audio.Sound | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
   useEffect(() => {
+    // Skip audio setup on web platform
+    if (Platform.OS === 'web') return;
+
     async function loadSound() {
       try {
-        // Only set audio mode on native platforms
-        if (Platform.OS !== 'web') {
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: true,
-          });
-        }
-
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+        });
+        
+        const source = Platform.select({
+          web: { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/dice.mp3' },
+          default: require('../../assets/sounds/dice.mp3')
+        });
+        
         const { sound } = await Audio.Sound.createAsync(
-          require('../../assets/sounds/dice.mp3'),
+          source,
           { shouldPlay: false }
         );
-        soundRef.current = sound;
-        console.log('Dice sound loaded successfully');
+        setSound(sound);
       } catch (error) {
-        console.error('Error loading dice sound:', error);
+        console.error('Error loading sound:', error);
       }
     }
 
     loadSound();
 
     return () => {
-      const cleanup = async () => {
-        if (soundRef.current) {
-          try {
-            const sound = soundRef.current;
-            await sound.stopAsync();
-            await sound.unloadAsync();
-          } catch (error) {
-            console.error('Error cleaning up sound:', error);
-          }
-          soundRef.current = null;
-        }
-      };
-      cleanup();
+      if (sound) {
+        sound.unloadAsync();
+      }
     };
   }, []);
 
@@ -217,13 +211,13 @@ export default function DiceScreen() {
     setIsRolling(true);
     setError(null);
 
-    if (soundRef.current) {
+    // Only play sound if not on web platform and sound is loaded
+    if (Platform.OS !== 'web' && sound) {
       try {
-        console.log('Playing dice sound');
-        await soundRef.current.setPositionAsync(0);
-        await soundRef.current.playAsync();
+        await sound.setPositionAsync(0);
+        await sound.playAsync();
       } catch (error) {
-        console.error('Error playing dice sound:', error);
+        console.error('Error playing sound:', error);
       }
     }
 
@@ -236,7 +230,7 @@ export default function DiceScreen() {
     setTimeout(() => {
       setIsRolling(false);
     }, 400);
-  }, [diceCount, isRolling]);
+  }, [diceCount, isRolling, sound]);
 
   useEffect(() => {
     let subscription: ReturnType<typeof Accelerometer.addListener>;

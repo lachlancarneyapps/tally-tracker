@@ -46,27 +46,31 @@ export default function AbacusScreen() {
     let isMounted = true;
 
     async function loadSound() {
+      if (Platform.OS === 'web') return;
+
       try {
-        if (Platform.OS !== 'web') {
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: true,
-            shouldDuckAndroid: true,
-          });
-        }
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: true,
+          shouldDuckAndroid: true,
+        });
+
+        const source = Platform.select({
+          web: { uri: 'https://adventuresinspeechpathology.com/wp-content/uploads/2025/06/abacus.mp3' },
+          default: require('../../assets/sounds/abacus.mp3')
+        });
 
         const { sound } = await Audio.Sound.createAsync(
-          require('../../assets/sounds/abacus.mp3'),
+          source,
           { shouldPlay: false, volume: 1.0 }
         );
 
         if (isMounted) {
           soundRef.current = sound;
           setIsSoundReady(true);
-          console.log('Abacus sound loaded successfully');
         }
       } catch (error) {
-        console.error('Error loading abacus sound:', error);
+        console.error('Error loading sound:', error);
       }
     }
 
@@ -75,32 +79,20 @@ export default function AbacusScreen() {
     return () => {
       isMounted = false;
       if (soundRef.current) {
-        const cleanup = async () => {
-          try {
-            await soundRef.current?.stopAsync();
-            await soundRef.current?.unloadAsync();
-          } catch (error) {
-            console.error('Error cleaning up sound:', error);
-          }
-        };
-        cleanup();
+        soundRef.current.unloadAsync().catch(() => {});
       }
     };
   }, []);
 
   const playBeadSound = async () => {
-    if (!soundRef.current || !isSoundReady) {
-      console.log('Sound not ready or ref not available');
-      return;
-    }
+    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current) return;
 
     try {
-      console.log('Playing abacus sound');
       await soundRef.current.stopAsync();
       await soundRef.current.setPositionAsync(0);
       await soundRef.current.playAsync();
     } catch (error) {
-      console.error('Error playing abacus sound:', error);
+      console.error('Error playing bead sound:', error);
     }
   };
 
@@ -188,13 +180,11 @@ export default function AbacusScreen() {
         isDragging.value = false;
         lastTranslationX.value = 0;
 
+        // Only play sound if bead position has changed significantly
         const finalPosition = bead.sharedX.value;
         const initialPosition = lastBeadPositionRef.current[beadKey];
-        
         if (Math.abs(finalPosition - initialPosition) > beadUnit / 2) {
-          requestAnimationFrame(() => {
-            playBeadSound().catch(console.error);
-          });
+          playBeadSound().catch(console.error);
         }
       });
 
