@@ -32,7 +32,7 @@ export default function AbacusScreen() {
   const soundRef = useRef<Audio.Sound | null>(null);
   const [isSoundReady, setIsSoundReady] = useState(false);
   const [resetKey, setResetKey] = useState(0);
-  const lastBeadPositionRef = useRef<{ [key: string]: number }>({});
+  const hasPlayedSoundRef = useRef(false);
 
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
@@ -88,14 +88,7 @@ export default function AbacusScreen() {
   }, []);
 
   const playBeadSound = async () => {
-    console.log('Attempting to play bead sound...');
-    console.log('Sound ready:', isSoundReady);
-    console.log('Sound ref exists:', !!soundRef.current);
-
-    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current) {
-      console.log('Skipping sound playback due to conditions not met');
-      return;
-    }
+    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current || hasPlayedSoundRef.current) return;
 
     try {
       console.log('Playing sound...');
@@ -130,13 +123,13 @@ export default function AbacusScreen() {
   const BeadComponent = ({ bead, rod }: any) => {
     const isDragging = useSharedValue(false);
     const lastTranslationX = useSharedValue(0);
-    const beadKey = `${rod.id}-${bead.id}`;
 
     const gesture = Gesture.Pan()
       .onBegin(() => {
         isDragging.value = true;
         lastTranslationX.value = 0;
-        lastBeadPositionRef.current[beadKey] = bead.sharedX.value;
+        hasPlayedSoundRef.current = false;
+        playBeadSound().catch(console.error);
       })
       .onUpdate((e) => {
         const dx = e.translationX - lastTranslationX.value;
@@ -191,16 +184,7 @@ export default function AbacusScreen() {
       .onFinalize(() => {
         isDragging.value = false;
         lastTranslationX.value = 0;
-
-        // Only play sound if bead position has changed
-        const finalPosition = bead.sharedX.value;
-        const initialPosition = lastBeadPositionRef.current[beadKey];
-        if (Math.abs(finalPosition - initialPosition) > 1) {
-          console.log('Bead moved, playing sound...');
-          playBeadSound().catch(console.error);
-        } else {
-          console.log('Bead movement too small, skipping sound');
-        }
+        hasPlayedSoundRef.current = true;
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
