@@ -108,7 +108,7 @@ const DiceFace: React.FC<DiceProps> = ({ value, size, isRolling, index }) => {
         key={index}
         style={{
           position: 'absolute',
-          width: dotSize,
+         css-view-g5y9jx r-transitionProperty-1i6wzkk r-userSelect-lrvibr r-cursor-1loqt21 r-touchAction-1otgn73 r-backgroundColor-ztyd71 r-borderRadius-y47klf r-padding-edyy15width: dotSize,
           height: dotSize,
           borderRadius: dotSize / 2,
           backgroundColor: '#0A4E2E',
