@@ -30,9 +30,9 @@ const beadUnit = beadWidth + beadSpacing;
 
 export default function AbacusScreen() {
   const soundRef = useRef<Audio.Sound | null>(null);
-  const isPlayingRef = useRef(false);
   const [isSoundReady, setIsSoundReady] = useState(false);
   const [resetKey, setResetKey] = useState(0);
+  const lastBeadPositionRef = useRef<{ [key: string]: number }>({});
 
   const sharedValuesRef = useRef(
     Array.from({ length: NUM_RODS }, () =>
@@ -85,17 +85,14 @@ export default function AbacusScreen() {
   }, []);
 
   const playBeadSound = async () => {
-    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current || isPlayingRef.current) return;
+    if (Platform.OS === 'web' || !isSoundReady || !soundRef.current) return;
 
     try {
-      isPlayingRef.current = true;
       await soundRef.current.stopAsync();
       await soundRef.current.setPositionAsync(0);
       await soundRef.current.playAsync();
     } catch (error) {
       console.error('Error playing bead sound:', error);
-    } finally {
-      isPlayingRef.current = false;
     }
   };
 
@@ -121,11 +118,13 @@ export default function AbacusScreen() {
   const BeadComponent = ({ bead, rod }: any) => {
     const isDragging = useSharedValue(false);
     const lastTranslationX = useSharedValue(0);
+    const beadKey = `${rod.id}-${bead.id}`;
 
     const gesture = Gesture.Pan()
       .onBegin(() => {
         isDragging.value = true;
         lastTranslationX.value = 0;
+        lastBeadPositionRef.current[beadKey] = bead.sharedX.value;
       })
       .onUpdate((e) => {
         const dx = e.translationX - lastTranslationX.value;
@@ -180,7 +179,13 @@ export default function AbacusScreen() {
       .onFinalize(() => {
         isDragging.value = false;
         lastTranslationX.value = 0;
-        playBeadSound().catch((e) => console.error('Audio error:', e));
+
+        // Only play sound if bead position has changed significantly
+        const finalPosition = bead.sharedX.value;
+        const initialPosition = lastBeadPositionRef.current[beadKey];
+        if (Math.abs(finalPosition - initialPosition) > beadUnit / 2) {
+          playBeadSound().catch(console.error);
+        }
       });
 
     const animatedStyle = useAnimatedStyle(() => ({
