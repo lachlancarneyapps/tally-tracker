@@ -192,11 +192,11 @@ export default function AbacusScreen() {
         isDragging.value = false;
         lastTranslationX.value = 0;
 
-        // Only play sound if bead position has changed significantly
+        // Only play sound if bead position has changed
         const finalPosition = bead.sharedX.value;
         const initialPosition = lastBeadPositionRef.current[beadKey];
-        if (Math.abs(finalPosition - initialPosition) > beadUnit / 2) {
-          console.log('Bead moved significantly, playing sound...');
+        if (Math.abs(finalPosition - initialPosition) > 1) {
+          console.log('Bead moved, playing sound...');
           playBeadSound().catch(console.error);
         } else {
           console.log('Bead movement too small, skipping sound');
