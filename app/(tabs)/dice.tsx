@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus, Minus, RefreshCw } from 'lucide-react-native';
 import { Accelerometer } from 'expo-sensors';
 import { Audio } from 'expo-av';
+import * as Haptics from 'expo-haptics';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -198,6 +199,15 @@ export default function DiceScreen() {
   const rollDice = useCallback(async () => {
     if (isRolling) return;
     
+    // Trigger haptic feedback on native platforms
+    if (Platform.OS !== 'web') {
+      try {
+        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      } catch (error) {
+        console.error('Error triggering haptics:', error);
+      }
+    }
+
     setIsRolling(true);
     setError(null);
 
